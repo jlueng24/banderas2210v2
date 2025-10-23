@@ -1,19 +1,20 @@
 // app.js
 /*
-  Banderas — Quiz (pro v5 + Álbum)
-  - Tema: renombrado y nuevos iconos
-  - Arranque directo (sin pantalla de confirmación)
-  - Responsive/táctil mejorado para móvil/tablet/desktop
-  - Colecciones: “Álbum” de países aprendidos (bandera + capital)
-  - Resto: modos, estudio, logros, PWA, accesibilidad, atajos
+  Diversión con el mundo — Quiz (v7)
+  Novedades:
+  - Álbum: Progresión por región (Mundo + Europa/Asia/América/Oceanía/África/Otras)
+    · Barras y porcentajes para Banderas y Capitales
+    · Cálculo en tiempo real respecto al catálogo 'ALL'
+  - Iconos en Modo, Tema y Dificultad (emojis elegantes, UI consistente)
+  - Mantiene desbloqueo por tipo (bandera/capital) y el resto de features
 */
 
-// ===== Utilidades =====
 const $ = s => document.querySelector(s);
 const $$ = s => Array.from(document.querySelectorAll(s));
 const randomInt = n => Math.floor(Math.random() * n);
 function shuffle(arr){ for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]] } return arr; }
 const todayStr = () => new Date().toISOString().slice(0,10);
+
 function isoWeekStringLocal(d=new Date()){
   const date = new Date(d.getFullYear(), d.getMonth(), d.getDate());
   const dayNum = (date.getDay() || 7);
@@ -26,7 +27,6 @@ function isoWeekStringLocal(d=new Date()){
 function flagUrl(code){ return `https://flagcdn.com/w320/${code}.png`; }
 function regionBadge(r){ return r||'Other'; }
 
-// ===== Config =====
 const LEVELS = {
   kids:   { label: "Niños",  time: 15, wrongPenalty: 0 },
   adult:  { label: "Adultos", time: 12, wrongPenalty: 0 },
@@ -38,15 +38,15 @@ const MAX_Q = 10;
 const SURVIVAL_START = 20;
 const SURVIVAL_BONUS = 2;
 
-// ===== Capitales ES =====
-const CAPITAL_ES = { /* … (tabla extensa de capitales -> español) … */ 
-"Amsterdam":"Ámsterdam","Athens":"Atenas","Berlin":"Berlín","Berne":"Berna","Bern":"Berna","Brussels":"Bruselas","Bucharest":"Bucarest","Budapest":"Budapest","Chisinau":"Chisináu","Copenhagen":"Copenhague","Dublin":"Dublín","Helsinki":"Helsinki","Kyiv":"Kiev","Kiev":"Kiev","Lisbon":"Lisboa","Ljubljana":"Liubliana","London":"Londres","Luxembourg":"Luxemburgo","Madrid":"Madrid","Minsk":"Minsk","Monaco":"Mónaco","Moscow":"Moscú","Nicosia":"Nicosia","Oslo":"Oslo","Paris":"París","Podgorica":"Podgorica","Prague":"Praga","Reykjavik":"Reikiavik","Riga":"Riga","Rome":"Roma","San Marino":"San Marino","Sarajevo":"Sarajevo","Skopje":"Skopie","Sofia":"Sofía","Stockholm":"Estocolmo","Tallinn":"Tallin","Tirana":"Tirana","Vaduz":"Vaduz","Valletta":"La Valeta","Vatican City":"Ciudad del Vaticano","Vienna":"Viena","Vilnius":"Vilna","Warsaw":"Varsovia","Zagreb":"Zagreb",
-"Abu Dhabi":"Abu Dabi","Amman":"Amán","Ankara":"Ankara","Astana":"Astaná","Baghdad":"Bagdad","Baku":"Bakú","Beijing":"Pekín","Peking":"Pekín","Beirut":"Beirut","Damascus":"Damasco","Dhaka":"Daca","Doha":"Doha","Hanoi":"Hanói","Islamabad":"Islamabad","Jakarta":"Yakarta","Jerusalem":"Jerusalén","Kabul":"Kabul","Kathmandu":"Katmandú","Kuala Lumpur":"Kuala Lumpur","Manila":"Manila","Muscat":"Mascate","New Delhi":"Nueva Delhi","Nur-Sultan":"Astaná","Phnom Penh":"Nom Pen","Riyadh":"Riad","Seoul":"Seúl","Singapore":"Singapur","Sri Jayawardenepura Kotte":"Sri Jayawardenapura Kotte","Taipei":"Taipéi","Tashkent":"Taskent","Tehran":"Teherán","Thimphu":"Timbu","Tokyo":"Tokio","Ulaanbaatar":"Ulán Bator","Vientiane":"Vientián","Sanaa":"Saná",
-"Canberra":"Canberra","Suva":"Suva","Wellington":"Wellington","Port Moresby":"Port Moresby","Apia":"Apia","Nukuʻalofa":"Nukualofa","Nuku'alofa":"Nukualofa","Honiara":"Honiara","Funafuti":"Funafuti",
-"Buenos Aires":"Buenos Aires","Asunción":"Asunción","Asuncion":"Asunción","Bogotá":"Bogotá","Brasília":"Brasilia","Brasilia":"Brasilia","Caracas":"Caracas","Georgetown":"Georgetown","Lima":"Lima","La Paz":"La Paz","Sucre":"Sucre","Montevideo":"Montevideo","Paramaribo":"Paramaribo","Quito":"Quito","Santiago":"Santiago",
-"Belmopan":"Belmopán","Guatemala City":"Ciudad de Guatemala","Havana":"La Habana","Kingston":"Kingston","Managua":"Managua","Mexico City":"Ciudad de México","Panama City":"Ciudad de Panamá","Port-au-Prince":"Puerto Príncipe","Port of Spain":"Puerto España","San Jose":"San José","San José":"San José","Santo Domingo":"Santo Domingo",
-"Ottawa":"Ottawa","Washington, D.C.":"Washington D. C.","Saint John's":"Saint John’s","St. John's":"Saint John’s",
-"Kuwait City":"Kuwait","Manama":"Manama","Majuro":"Majuro","Melekeok":"Melekeok","Ngerulmud":"Ngerulmud","Palikir":"Palikir","Tarawa":"Tarawa"
+// ===== Capitales ES (map) =====
+const CAPITAL_ES = {
+  "Amsterdam":"Ámsterdam","Athens":"Atenas","Berlin":"Berlín","Berne":"Berna","Bern":"Berna","Brussels":"Bruselas","Bucharest":"Bucarest","Budapest":"Budapest","Chisinau":"Chisináu","Copenhagen":"Copenhague","Dublin":"Dublín","Helsinki":"Helsinki","Kyiv":"Kiev","Kiev":"Kiev","Lisbon":"Lisboa","Ljubljana":"Liubliana","London":"Londres","Luxembourg":"Luxemburgo","Madrid":"Madrid","Minsk":"Minsk","Monaco":"Mónaco","Moscow":"Moscú","Nicosia":"Nicosia","Oslo":"Oslo","Paris":"París","Podgorica":"Podgorica","Prague":"Praga","Reykjavik":"Reikiavik","Riga":"Riga","Rome":"Roma","San Marino":"San Marino","Sarajevo":"Sarajevo","Skopje":"Skopie","Sofia":"Sofía","Stockholm":"Estocolmo","Tallinn":"Tallin","Tirana":"Tirana","Vaduz":"Vaduz","Valletta":"La Valeta","Vatican City":"Ciudad del Vaticano","Vienna":"Viena","Vilnius":"Vilna","Warsaw":"Varsovia","Zagreb":"Zagreb",
+  "Abu Dhabi":"Abu Dabi","Amman":"Amán","Ankara":"Ankara","Astana":"Astaná","Baghdad":"Bagdad","Baku":"Bakú","Beijing":"Pekín","Peking":"Pekín","Beirut":"Beirut","Damascus":"Damasco","Dhaka":"Daca","Doha":"Doha","Hanoi":"Hanói","Islamabad":"Islamabad","Jakarta":"Yakarta","Jerusalem":"Jerusalén","Kabul":"Kabul","Kathmandu":"Katmandú","Kuala Lumpur":"Kuala Lumpur","Manila":"Manila","Muscat":"Mascate","New Delhi":"Nueva Delhi","Nur-Sultan":"Astaná","Phnom Penh":"Nom Pen","Riyadh":"Riad","Seoul":"Seúl","Singapore":"Singapur","Sri Jayawardenepura Kotte":"Sri Jayawardenapura Kotte","Taipei":"Taipéi","Tashkent":"Taskent","Tehran":"Teherán","Thimphu":"Timbu","Tokyo":"Tokio","Ulaanbaatar":"Ulán Bator","Vientiane":"Vientián","Sanaa":"Saná",
+  "Canberra":"Canberra","Suva":"Suva","Wellington":"Wellington","Port Moresby":"Port Moresby","Apia":"Apia","Nukuʻalofa":"Nukualofa","Nuku'alofa":"Nukualofa","Honiara":"Honiara","Funafuti":"Funafuti",
+  "Buenos Aires":"Buenos Aires","Asunción":"Asunción","Asuncion":"Asunción","Bogotá":"Bogotá","Brasília":"Brasilia","Brasilia":"Brasilia","Caracas":"Caracas","Georgetown":"Georgetown","Lima":"Lima","La Paz":"La Paz","Sucre":"Sucre","Montevideo":"Montevideo","Paramaribo":"Paramaribo","Quito":"Quito","Santiago":"Santiago",
+  "Belmopan":"Belmopán","Guatemala City":"Ciudad de Guatemala","Havana":"La Habana","Kingston":"Kingston","Managua":"Managua","Mexico City":"Ciudad de México","Panama City":"Ciudad de Panamá","Port-au-Prince":"Puerto Príncipe","Port of Spain":"Puerto España","San Jose":"San José","San José":"San José","Santo Domingo":"Santo Domingo",
+  "Ottawa":"Ottawa","Washington, D.C.":"Washington D. C.","Saint John's":"Saint John’s","St. John's":"Saint John’s",
+  "Kuwait City":"Kuwait","Manama":"Manama","Majuro":"Majuro","Melekeok":"Melekeok","Ngerulmud":"Ngerulmud","Palikir":"Palikir","Tarawa":"Tarawa"
 };
 const toSpanishCapital = cap => cap ? (CAPITAL_ES[cap] || cap) : "";
 
@@ -69,9 +69,9 @@ let missMap = {};
 let streak = 0;
 let muteFx = false;
 let studyQueue = [];
-let unlockedThisRun = new Set(); // NUEVO: para mostrar CTA al final
+let unlockedThisRun = new Set();
 
-// ===== LocalStorage =====
+// ===== LocalStorage keys =====
 const LS = {
   name:'pro_player_name',
   scores:'pro_scores',
@@ -80,7 +80,7 @@ const LS = {
   last:'pro_last_sel',
   mute:'pro_mute',
   achievements:'pro_achievements',
-  albums:'pro_albums' // NUEVO
+  albums:'pro_albums_v2' // v2: estructura por tipo (flag/capital)
 };
 
 // ===== Audio =====
@@ -179,16 +179,18 @@ const ui = {
   albumSearch: $('#albumSearch'),
   albumRegion: $('#albumRegion'),
   albumCount: $('#albumCount'),
+  albumProgress: $('#albumProgress'),
   openAlbumFromFinal: $('#openAlbumFromFinal'),
+
+  // Liga
+  leagueModal: $('#leagueModal'),
+  leagueWeek: $('#leagueWeek'),
+  leagueTable: $('#leagueTable'),
+  leagueName: $('#leagueName'),
 };
 
 // ===== Pantallas =====
-const screens = {
-  player: $('#screen-player'),
-  mode: $('#screen-mode'),
-  game: $('#screen-game'),
-  final: $('#finalCard'),
-};
+const screens = { player: $('#screen-player'), mode: $('#screen-mode'), game: $('#screen-game'), final: $('#finalCard') };
 function showScreen(name){
   Object.values(screens).forEach(s => s.classList.remove('active'));
   screens[name].classList.add('active');
@@ -370,7 +372,6 @@ function pauseGame(){
   qAccumulatedMs += (Date.now() - qActiveStartMs);
   stopTimer();
   disableAnswers(true);
-  $("#pauseModal")?.showModal();
 }
 function resumeGame(){
   if (!paused) return;
@@ -378,7 +379,6 @@ function resumeGame(){
   qActiveStartMs = Date.now();
   startTimer(timeLeft);
   disableAnswers(false);
-  $("#pauseModal")?.close();
 }
 function disableAnswers(disabled){
   $$("#card-flag .answer-btn").forEach(b=> b.disabled = disabled);
@@ -386,10 +386,7 @@ function disableAnswers(disabled){
 }
 
 // ===== Juego =====
-function applyThemePool(){
-  if (currentTheme==='all') return [...ALL];
-  return ALL.filter(x=>x.region===currentTheme);
-}
+function applyThemePool(){ return currentTheme==='all' ? [...ALL] : ALL.filter(x=>x.region===currentTheme); }
 function pickOptions(correct, pool, n=4){
   const others = pool.filter(x=>x.code!==correct.code);
   shuffle(others);
@@ -400,7 +397,6 @@ function pickOptions(correct, pool, n=4){
   }
   return shuffle([correct, ...fill]);
 }
-
 function modeLabel(m){
   return m==='flags'?'Banderas':m==='capitals'?'Capitales':m==='mixed'?'Mixto':m==='survival'?'Supervivencia':m==='study'?'Estudio':m;
 }
@@ -413,19 +409,15 @@ function newGame(){
   order = [];
   const withCapital = optionsPool.filter(x=>x.capitalES && x.capitalES.trim().length);
 
-  if (currentMode==='study'){
-    ui.qTotal.textContent = '/∞';
-  } else if (currentMode==='survival'){
-    ui.qTotal.textContent = '';
-  } else {
-    ui.qTotal.textContent = '/'+MAX_Q;
-  }
+  if (currentMode==='study'){ ui.qTotal.textContent = '/∞'; }
+  else if (currentMode==='survival'){ ui.qTotal.textContent = ''; }
+  else { ui.qTotal.textContent = '/'+MAX_Q; }
 
   const count = MAX_Q;
   for (let i=0; i<count; i++){
     if (currentMode === 'flags')      order.push({ kind:'flag',    item: optionsPool[i % optionsPool.length] });
     else if (currentMode === 'capitals') order.push({ kind:'capital', item: withCapital[i % withCapital.length] || optionsPool[i % optionsPool.length] });
-    else { // mixed / survival / study
+    else {
       const kind = (withCapital.length && Math.random()<0.5) ? 'capital' : 'flag';
       const baseK = (kind==='capital') ? (withCapital.length?withCapital:optionsPool) : optionsPool;
       order.push({ kind, item: baseK[i % baseK.length] });
@@ -441,7 +433,7 @@ function newGame(){
   ui.qNumber.textContent = 1; ui.progressBar.style.width = "0%";
   ui.hudPlayer.textContent = playerName || 'Anónimo';
   ui.hudMode.textContent = modeLabel(currentMode);
-  ui.hudTheme.textContent = (currentTheme==='all'?'Todo':currentTheme);
+  ui.hudTheme.textContent = (currentTheme==='all'?'Mundo':currentTheme);
 
   lsSet(LS.last, { mode: currentMode, level: currentLevel, theme: currentTheme });
 
@@ -489,14 +481,9 @@ function renderQuestion(){
 
   locked = false;
   ui.qNumber.textContent = (currentMode==='study' ? (idx+1+studyQueue.length) : (idx+1));
-  if (currentMode==='study'){
-    $('#timeBar').style.width = '0%';
-    ui.timeLeft.textContent = '∞';
-  } else if (currentMode==='survival'){
-    if (idx===0){ timeLeft = SURVIVAL_START; startSurvivalTimer(); }
-  } else {
-    startTimer();
-  }
+  if (currentMode==='study'){ $('#timeBar').style.width = '0%'; ui.timeLeft.textContent = '∞'; }
+  else if (currentMode==='survival'){ if (idx===0){ timeLeft = SURVIVAL_START; startSurvivalTimer(); } }
+  else { startTimer(); }
 }
 
 function markButtons(buttons, targetBtn){
@@ -511,39 +498,105 @@ function markButtons(buttons, targetBtn){
     btn.disabled = true;
   });
 }
-
 function whyText(country){
   const pop = country.population ? ` · Población aprox.: ${(country.population/1e6).toFixed(1)}M` : '';
   return `${country.nameES} — Región: ${regionBadge(country.region)}${pop}`;
 }
 
-// ===== Álbum (colecciones) =====
-function getAlbum(){
-  // Estructura: { code: { code, nameES, capitalES, region, unlockedAtISO, hits } }
-  return lsGet(LS.albums, {});
-}
+// ===== Álbum (por tipo) =====
+// Estructura v2:
+// albums: { [code]: { code, nameES, region,
+//   flag:{unlocked:boolean,hits:number,unlockedAtISO?:string},
+//   capital:{unlocked:boolean,value:string,hits:number,unlockedAtISO?:string} } }
+function getAlbum(){ return lsGet(LS.albums, {}); }
 function saveAlbum(obj){ lsSet(LS.albums, obj); }
-
-function markLearned(country){
+function ensureAlbumEntry(country){
   const album = getAlbum();
   if(!album[country.code]){
     album[country.code] = {
       code: country.code,
       nameES: country.nameES,
-      capitalES: country.capitalES || "",
       region: country.region || "Other",
-      unlockedAtISO: new Date().toISOString(),
-      hits: 1
+      flag: { unlocked:false, hits:0 },
+      capital: { unlocked:false, value: country.capitalES || "", hits:0 }
     };
-    unlockedThisRun.add(country.code);
-  } else {
-    album[country.code].hits = (album[country.code].hits||0) + 1;
-    // Si la capital estaba vacía y ahora la tenemos, la completamos
-    if (!album[country.code].capitalES && country.capitalES){
-      album[country.code].capitalES = country.capitalES;
-    }
+    saveAlbum(album);
   }
+  return album;
+}
+function markFlagLearned(country){
+  const album = ensureAlbumEntry(country);
+  const entry = album[country.code];
+  if (!entry.flag.unlocked) { entry.flag.unlocked = true; entry.flag.unlockedAtISO = new Date().toISOString(); }
+  entry.flag.hits = (entry.flag.hits||0) + 1;
   saveAlbum(album);
+  unlockedThisRun.add(country.code);
+}
+function markCapitalLearned(country){
+  const album = ensureAlbumEntry(country);
+  const entry = album[country.code];
+  if (!entry.capital.unlocked) { entry.capital.unlocked = true; entry.capital.unlockedAtISO = new Date().toISOString(); }
+  entry.capital.value = country.capitalES || entry.capital.value || "";
+  entry.capital.hits = (entry.capital.hits||0) + 1;
+  saveAlbum(album);
+  unlockedThisRun.add(country.code);
+}
+
+// ---- Progreso por región (barras + %) ----
+const REGION_KEYS = ["all","Europe","Asia","Americas","Oceania","Africa","Other"];
+const REGION_LABELS = { all:"Mundo", Europe:"Europa", Asia:"Asia", Americas:"América", Oceania:"Oceanía", Africa:"África", Other:"Otras" };
+
+function countTotalsByRegion(){
+  const map = {};
+  for(const key of REGION_KEYS){ map[key] = { total:0, flag:0, capital:0, both:0 }; }
+  for(const c of ALL){
+    const key = (c.region && REGION_KEYS.includes(c.region)) ? c.region : "Other";
+    map[key].total += 1;
+    map.all.total += 1;
+  }
+  const album = getAlbum();
+  for(const code in album){
+    const e = album[code];
+    const k = (e.region && REGION_KEYS.includes(e.region)) ? e.region : "Other";
+    const f = !!(e.flag && e.flag.unlocked);
+    const cap = !!(e.capital && e.capital.unlocked);
+    if (f){ map[k].flag+=1; map.all.flag+=1; }
+    if (cap){ map[k].capital+=1; map.all.capital+=1; }
+    if (f && cap){ map[k].both+=1; map.all.both+=1; }
+  }
+  return map;
+}
+function pct(part,total){ return total? Math.round((part/total)*100) : 0; }
+function barHtml(label, val, total){
+  const p = pct(val,total);
+  return `
+    <div class="flex items-center gap-2">
+      <span class="text-[11px] w-16 text-slate-500">${label}</span>
+      <div class="bar w-full"><span style="width:${p}%"></span></div>
+      <span class="text-[11px] w-10 text-right font-semibold">${p}%</span>
+    </div>`;
+}
+function renderAlbumProgress(){
+  const mp = countTotalsByRegion();
+  let html = `
+    <div class="mb-2 text-sm font-semibold text-slate-700">Progreso por región</div>
+    <div class="grid md:grid-cols-2 gap-3">`;
+  for (const key of REGION_KEYS){
+    const row = mp[key];
+    if (!row || row.total===0) continue;
+    html += `
+      <div class="rounded-xl border bg-white p-3">
+        <div class="flex items-center justify-between mb-2">
+          <div class="font-bold">${REGION_LABELS[key]}</div>
+          <div class="text-[11px] text-slate-500">Total: ${row.total}</div>
+        </div>
+        ${barHtml("Banderas", row.flag, row.total)}
+        <div class="h-2"></div>
+        ${barHtml("Capitales", row.capital, row.total)}
+      </div>`;
+  }
+  html += `</div>`;
+  ui.albumProgress.innerHTML = html;
 }
 
 function renderAlbum(){
@@ -556,31 +609,46 @@ function renderAlbum(){
     .filter(x => region==='all' ? true : (x.region===region))
     .filter(x => !q ? true : (
       (x.nameES||"").toLowerCase().includes(q) ||
-      (x.capitalES||"").toLowerCase().includes(q)
+      (x.capital?.value||"").toLowerCase().includes(q)
     ))
+    .filter(x => (x.flag?.unlocked || x.capital?.unlocked))
     .sort((a,b)=> (a.nameES||"").localeCompare(b.nameES||"","es"));
 
   ui.albumCount.textContent = filtered.length;
-  ui.albumGrid.innerHTML = filtered.map(it=>`
-    <div class="rounded-2xl border bg-white overflow-hidden">
-      <div class="aspect-video w-full bg-white grid place-items-center">
-        <img src="${flagUrl(it.code)}" alt="Bandera de ${it.nameES}" class="w-full h-full object-contain" />
+
+  ui.albumGrid.innerHTML = filtered.map(it=>{
+    const showFlag = it.flag?.unlocked;
+    const showCap = it.capital?.unlocked && (it.capital?.value || '').trim().length;
+
+    const flagBlock = showFlag ? `
+      <div class="w-full h-16 sm:h-20 overflow-hidden rounded-lg border bg-white grid place-items-center">
+        <img src="${flagUrl(it.code)}" alt="Bandera de ${it.nameES}" class="max-h-16 sm:max-h-20 w-auto object-contain" />
+      </div>` : ``;
+
+    const capitalBlock = showCap ? `
+      <div class="mt-2 text-base sm:text-lg font-extrabold text-slate-800 leading-snug">${it.capital.value}</div>` : ``;
+
+    const metaParts = [];
+    if (showFlag) metaParts.push(`🏳️ ${it.flag.hits||1}x`);
+    if (showCap) metaParts.push(`🏛️ ${it.capital.hits||1}x`);
+    const meta = metaParts.length ? `<div class="mt-2 text-[11px] text-slate-500">${metaParts.join(' · ')}</div>` : '';
+
+    return `
+    <div class="rounded-2xl border bg-white overflow-hidden p-3">
+      <div class="flex items-start justify-between gap-2">
+        <h4 class="font-bold text-sm">${it.nameES}</h4>
+        <span class="text-[10px] px-2 py-0.5 rounded-full border bg-slate-50">${regionBadge(it.region)}</span>
       </div>
-      <div class="p-3">
-        <div class="flex items-center justify-between gap-2">
-          <h4 class="font-bold text-sm">${it.nameES}</h4>
-          <span class="text-[10px] px-2 py-0.5 rounded-full border bg-slate-50">${regionBadge(it.region)}</span>
-        </div>
-        <div class="text-xs text-slate-600 mt-1">Capital: <span class="font-semibold">${it.capitalES||'—'}</span></div>
-        <div class="mt-2 flex items-center justify-between text-[11px] text-slate-500">
-          <span>Desbloqueado: ${new Date(it.unlockedAtISO).toLocaleDateString('es-ES')}</span>
-          <span>✅ ${it.hits||1}</span>
-        </div>
-      </div>
-    </div>
-  `).join('');
+      ${flagBlock}
+      ${capitalBlock}
+      ${meta}
+    </div>`;
+  }).join('');
 
   ui.albumEmpty.classList.toggle('hidden', filtered.length>0);
+
+  // Progreso por región (siempre respecto a ALL)
+  renderAlbumProgress();
 }
 
 // ===== Selección / respuesta =====
@@ -600,8 +668,7 @@ function onSelect(e){
     if (correct){
       score += 10; hits += 1; streak += 1; fxCorrect();
       ui.whyFlag.textContent = whyText(q.item);
-      // Álbum
-      markLearned(q.item);
+      markFlagLearned(q.item);
     } else {
       misses += 1; streak = 0; missMap[q.item.code].wrong += 1;
       if (currentMode!=='study' && LEVELS[currentLevel].wrongPenalty<0) score = Math.max(0, score + LEVELS[currentLevel].wrongPenalty);
@@ -615,8 +682,7 @@ function onSelect(e){
       score += 10; hits += 1; streak += 1; fxCorrect();
       ui.flagImgReveal.classList.remove('hidden'); ui.countryReveal.classList.remove('hidden');
       ui.whyCap.textContent = whyText(q.item);
-      // Álbum
-      markLearned(q.item);
+      markCapitalLearned(q.item);
     } else {
       misses += 1; streak = 0; missMap[q.item.code].wrong += 1;
       if (currentMode!=='study' && LEVELS[currentLevel].wrongPenalty<0) score = Math.max(0, score + LEVELS[currentLevel].wrongPenalty);
@@ -632,12 +698,8 @@ function onSelect(e){
   if (streak===5) { unlockAchievement('streak5'); fxStreak(); }
 
   if (currentMode==='survival'){
-    if (!correct){
-      endGame(true);
-      return;
-    } else {
-      timeLeft += SURVIVAL_BONUS;
-    }
+    if (!correct){ endGame(true); return; }
+    else { timeLeft += SURVIVAL_BONUS; }
   }
 
   if (currentMode!=='study') timesMs.push(qAccumulatedMs);
@@ -656,11 +718,7 @@ function handleTimeout(){
   missMap[q.item.code].attempts += 1;
   missMap[q.item.code].wrong += 1;
 
-  if (currentMode==='survival'){
-    fxWrong();
-    endGame(true);
-    return;
-  }
+  if (currentMode==='survival'){ fxWrong(); endGame(true); return; }
 
   const { wrongPenalty } = LEVELS[currentLevel];
   if (wrongPenalty < 0) score = Math.max(0, score + wrongPenalty);
@@ -693,25 +751,12 @@ function advanceProgress(){
 function scheduleNext(){ if(nextTimer){ clearTimeout(nextTimer); } nextTimer = setTimeout(nextQuestion, 700); }
 function nextQuestion(){
   if (currentMode==='study'){
-    if (idx < order.length - 1){
-      idx++;
-    } else if (studyQueue.length){
-      order.push(studyQueue.shift());
-      idx++;
-    } else {
-      endGame(false);
-      return;
-    }
-    renderQuestion();
-    return;
+    if (idx < order.length - 1){ idx++; }
+    else if (studyQueue.length){ order.push(studyQueue.shift()); idx++; }
+    else { endGame(false); return; }
+    renderQuestion(); return;
   }
-
-  if (idx < MAX_Q - 1){
-    idx++;
-    renderQuestion();
-  } else {
-    endGame(false);
-  }
+  if (idx < MAX_Q - 1){ idx++; renderQuestion(); } else { endGame(false); }
 }
 
 let survivalInterval = null;
@@ -727,15 +772,12 @@ function startSurvivalTimer(){
     timeSurvivedSec += 0.1;
     ui.timeLeft.textContent = Math.ceil(timeLeft);
     ui.timeBar.style.width = Math.max(0, (timeLeft / SURVIVAL_START) * 100) + "%";
-    if (timeLeft<=0){
-      fxWrong();
-      endGame(true);
-    }
+    if (timeLeft<=0){ fxWrong(); endGame(true); }
   }, 100);
 }
 function stopSurvivalTimer(){ if (survivalInterval) { clearInterval(survivalInterval); survivalInterval=null; } }
 
-function endGame(fromSurvival){
+function endGame(){
   stopTimer(); stopSurvivalTimer(); if(nextTimer){ clearTimeout(nextTimer); nextTimer=null; }
   ui.finalPoints.textContent = score;
   ui.finalHits.textContent = hits;
@@ -748,18 +790,104 @@ function endGame(fromSurvival){
   const ach = listAchievements();
   ui.achievementsList.innerHTML = ach.length ? ach.map(a=>`<span class="px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold" title="${a.desc}">🏅 ${a.name}</span>`).join('') : `<span class="text-slate-500 text-sm">Sin logros aún.</span>`;
 
-  // Mostrar CTA a álbum si hubo desbloqueos en esta partida
-  if (unlockedThisRun.size > 0) {
-    ui.openAlbumFromFinal.classList.remove('hidden');
-  } else {
-    ui.openAlbumFromFinal.classList.add('hidden');
-  }
+  if (unlockedThisRun.size > 0) { ui.openAlbumFromFinal.classList.remove('hidden'); }
+  else { ui.openAlbumFromFinal.classList.add('hidden'); }
 
   showScreen('final');
 
   const durationMs = timesMs.reduce((a,b)=>a+b,0);
   recordGameToLeague({name: playerName||'Anónimo', score, mode: modeLabel(currentMode), level: currentLevel, theme: currentTheme, durationMs});
   updateGlobalStatsFromRun();
+}
+
+// ===== Liga =====
+function renderLeague(){
+  const scores = lsGet(LS.scores, []);
+  const week = isoWeekStringLocal();
+  ui.leagueWeek.textContent = week;
+
+  const byPlayer = {};
+  scores.filter(s => s.week===week).forEach(s=>{
+    if(!byPlayer[s.name] || s.score > byPlayer[s.name].score){ byPlayer[s.name] = s; }
+  });
+  const rows = Object.values(byPlayer).sort((a,b)=> b.score - a.score).slice(0,50);
+
+  if (!rows.length){
+    ui.leagueTable.innerHTML = `<div class="p-4 rounded-xl border bg-slate-50 text-sm text-slate-600">Aún no hay partidas registradas esta semana.</div>`;
+    return;
+  }
+
+  const html = `
+    <table class="w-full text-sm">
+      <thead><tr class="text-left text-slate-500">
+        <th class="py-2 pr-2">#</th><th class="py-2 pr-2">Jugador</th><th class="py-2 pr-2">Puntos</th>
+        <th class="py-2 pr-2">Modo</th><th class="py-2 pr-2">Nivel</th><th class="py-2 pr-2">Tema</th><th class="py-2 pr-2">Duración</th>
+      </tr></thead>
+      <tbody>
+        ${rows.map((r,i)=>`
+          <tr class="border-t">
+            <td class="py-2 pr-2 font-semibold">${i+1}</td>
+            <td class="py-2 pr-2">${r.name}</td>
+            <td class="py-2 pr-2 font-bold">${r.score}</td>
+            <td class="py-2 pr-2">${r.mode}</td>
+            <td class="py-2 pr-2">${r.level}</td>
+            <td class="py-2 pr-2">${r.theme==='all'?'Mundo':r.theme}</td>
+            <td class="py-2 pr-2">${Math.round((r.durationMs||0)/1000)}s</td>
+          </tr>`).join('')}
+      </tbody>
+    </table>`;
+  ui.leagueTable.innerHTML = html;
+
+  ui.leagueName.value = playerName || '';
+}
+
+// ===== Stats =====
+function msToStr(ms){ const s=Math.round(ms/1000); return s+'s'; }
+function renderStats(tab='overview'){
+  const st = lsGet(LS.stats, { times:{count:0,sumMs:0,maxMs:0,minMs:0}, countries:{} });
+  const ach = listAchievements();
+
+  if (tab==='overview'){
+    const avg = st.times.count ? (st.times.sumMs/st.times.count) : 0;
+    $('#statsContent').innerHTML = `
+      <div class="grid sm:grid-cols-3 gap-3">
+        <div class="rounded-xl border p-3 bg-slate-50/50"><div class="text-xs text-slate-500">Respuestas registradas</div><div class="text-2xl font-extrabold">${st.times.count}</div></div>
+        <div class="rounded-xl border p-3 bg-slate-50/50"><div class="text-xs text-slate-500">Tiempo medio</div><div class="text-2xl font-extrabold">${msToStr(avg)}</div></div>
+        <div class="rounded-xl border p-3 bg-slate-50/50"><div class="text-xs text-slate-500">Logros</div><div class="text-2xl font-extrabold">${ach.length}</div></div>
+      </div>`;
+    return;
+  }
+
+  if (tab==='mistakes'){
+    const arr = Object.entries(st.countries||{}).map(([code, v])=>({code, ...v, rate: (v.wrong||0)/Math.max(1,v.attempts||0)}))
+      .filter(x=>x.attempts>2).sort((a,b)=> b.rate - a.rate).slice(0,15);
+    $('#statsContent').innerHTML = arr.length ? `
+      <table class="w-full text-sm">
+        <thead><tr class="text-left text-slate-500"><th class="py-2 pr-2">País</th><th class="py-2 pr-2">Intentos</th><th class="py-2 pr-2">Fallos</th><th class="py-2 pr-2">% fallo</th></tr></thead>
+        <tbody>${arr.map(r=>`<tr class="border-t"><td class="py-2 pr-2">${r.name}</td><td class="py-2 pr-2">${r.attempts}</td><td class="py-2 pr-2">${r.wrong}</td><td class="py-2 pr-2">${(r.rate*100).toFixed(0)}%</td></tr>`).join('')}</tbody>
+      </table>` : `<div class="p-4 rounded-xl border bg-slate-50 text-sm text-slate-600">Aún no hay datos suficientes.</div>`;
+    return;
+  }
+
+  if (tab==='times'){
+    const c = st.times;
+    $('#statsContent').innerHTML = `
+      <div class="grid sm:grid-cols-3 gap-3">
+        <div class="rounded-xl border p-3 bg-slate-50/50"><div class="text-xs text-slate-500">Respuestas</div><div class="text-2xl font-extrabold">${c.count||0}</div></div>
+        <div class="rounded-xl border p-3 bg-slate-50/50"><div class="text-xs text-slate-500">Total</div><div class="text-2xl font-extrabold">${msToStr(c.sumMs||0)}</div></div>
+        <div class="rounded-xl border p-3 bg-slate-50/50"><div class="text-xs text-slate-500">Máx / Mín</div><div class="text-2xl font-extrabold">${msToStr(c.maxMs||0)} / ${msToStr(c.minMs||0)}</div></div>
+      </div>`;
+    return;
+  }
+
+  if (tab==='achievements'){
+    $('#statsContent').innerHTML = ach.length ? ach.map(a=>`
+      <div class="rounded-xl border p-3 bg-emerald-50/50 mb-2">
+        <div class="font-bold">🏅 ${a.name}</div>
+        <div class="text-xs text-slate-600">${a.desc}</div>
+        <div class="text-[11px] text-slate-500 mt-1">${new Date(a.date).toLocaleString('es-ES')}</div>
+      </div>`).join('') : `<div class="p-4 rounded-xl border bg-slate-50 text-sm text-slate-600">Aún no has desbloqueado logros.</div>`;
+  }
 }
 
 // ===== Eventos =====
@@ -786,7 +914,7 @@ $$('.theme-btn').forEach(b=>{
     currentTheme = b.dataset.theme;
     $$('.theme-btn').forEach(x=>x.classList.remove('ring-2','ring-emerald-400'));
     b.classList.add('ring-2','ring-emerald-400');
-    ui.selTheme.textContent = currentTheme==='all'?'Todo':currentTheme;
+    ui.selTheme.textContent = currentTheme==='all'?'Mundo':currentTheme;
   });
 });
 $$('.level-btn').forEach(b=>{
@@ -798,7 +926,7 @@ $$('.level-btn').forEach(b=>{
   });
 });
 
-// Jugar directo (sin pantalla de confirmación)
+// Jugar directo
 ui.startGame.addEventListener('click', ()=>{
   if (!currentMode || currentMode==='daily'){ alert('Elige un modo (excepto Reto del día)'); return; }
   if (!currentTheme){ alert('Elige un tema'); return; }
@@ -817,10 +945,6 @@ $('#exitBtn2').addEventListener('click', ()=>{ stopTimer(); stopSurvivalTimer();
 $('#pauseBtn').addEventListener('click', ()=> pauseGame());
 $('#pauseBtn2').addEventListener('click', ()=> pauseGame());
 document.addEventListener('keydown', (e)=>{
-  if($("#pauseModal")?.open){
-    if(e.key==='Escape'){ $("#pauseModal").close(); resumeGame(); }
-    return;
-  }
   if(screens.game.classList.contains('active')){
     if(['1','2','3','4'].includes(e.key)){
       const pick = parseInt(e.key,10)-1;
@@ -835,7 +959,7 @@ document.addEventListener('keydown', (e)=>{
 $('#playAgainBtn').addEventListener('click', ()=> newGame());
 $('#goHomeBtn').addEventListener('click', ()=>{ stopTimer(); stopSurvivalTimer(); showScreen('mode'); });
 $('#shareResult').addEventListener('click', ()=>{
-  const text = `🏆 ${playerName} · ${modeLabel(currentMode)} (${LEVELS[currentLevel]?.label||'—'} · ${currentTheme==='all'?'Todo':currentTheme}) · ${score} puntos · ${isoWeekStringLocal()}`;
+  const text = `🏆 ${playerName} · ${modeLabel(currentMode)} (${LEVELS[currentLevel]?.label||'—'} · ${currentTheme==='all'?'Mundo':currentTheme}) · ${score} puntos · ${isoWeekStringLocal()}`;
   if(navigator.share) navigator.share({text}).catch(()=>{ navigator.clipboard.writeText(text); alert("Copiado"); });
   else { navigator.clipboard.writeText(text); alert("Copiado"); }
 });
@@ -844,20 +968,26 @@ ui.openAlbumFromFinal?.addEventListener('click', ()=>{
   renderAlbum();
 });
 
-// Modales existentes
+// Modales
 $('#helpBtn').addEventListener('click', ()=> $("#helpModal").showModal());
 $('#closeHelp').addEventListener('click', ()=> $("#helpModal").close());
+
+// Liga
 $('#btnLeague').addEventListener('click', ()=>{ renderLeague(); $("#leagueModal").showModal(); });
 $('#closeLeague').addEventListener('click', ()=> $("#leagueModal").close());
 $('#saveLeagueName').addEventListener('click', ()=>{ const n=$('#leagueName').value.trim(); if(n){ playerName=n; lsSet(LS.name, playerName); $('#hudPlayer').textContent=playerName; } });
 $('#resetLeague').addEventListener('click', ()=>{ if(confirm('¿Borrar ranking y estadísticas locales?')){ localStorage.removeItem(LS.scores); localStorage.removeItem(LS.stats); renderLeague(); } });
+
+// Stats
 $('#btnStats').addEventListener('click', ()=>{ renderStats('overview'); $("#statsModal").showModal(); setActiveTab('overview'); });
 $('#closeStats').addEventListener('click', ()=> $("#statsModal").close());
 $$("#statsModal .tab-btn").forEach(btn=> btn.addEventListener('click', ()=>{ setActiveTab(btn.dataset.tab); renderStats(btn.dataset.tab); }));
 function setActiveTab(tab){ $$("#statsModal .tab-btn").forEach(b=> b.classList.remove('active')); $(`#statsModal .tab-btn[data-tab="${tab}"]`).classList.add('active'); }
+
+// Reto del día
 $('#closeDaily').addEventListener('click', ()=> $("#dailyModal").close());
 
-// NUEVO: eventos Álbum
+// Álbum
 ui.btnAlbum?.addEventListener('click', ()=>{
   ui.albumSearch.value = '';
   ui.albumRegion.value = 'all';
@@ -885,7 +1015,7 @@ window.addEventListener('DOMContentLoaded', async ()=>{
     currentTheme = last.theme || 'all';
     if(currentMode){ ui.selMode.textContent = modeLabel(currentMode); }
     if(currentLevel){ ui.selLevel.textContent = LEVELS[currentLevel]?.label || '—'; }
-    if(currentTheme){ ui.selTheme.textContent = currentTheme==='all'?'Todo':currentTheme; }
+    if(currentTheme){ ui.selTheme.textContent = currentTheme==='all'?'Mundo':currentTheme; }
   }
   updateDailyTile();
 });
