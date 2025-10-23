@@ -1,10 +1,9 @@
-<!-- index.html -->
 <!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Banderas — Quiz</title>
+  <title>Diversión con el mundo</title>
   <meta name="theme-color" content="#0ea5e9" />
   <link id="manifestLink" rel="manifest" />
   <script src="https://cdn.tailwindcss.com"></script>
@@ -20,6 +19,9 @@
     .answer-btn:active{transform:translateY(1px) scale(.99)}
     .flag-img{object-fit:contain;object-position:center}
     .kbd{border:1px solid rgb(203 213 225); border-bottom-width:3px; padding:.15rem .45rem; border-radius:.375rem; font-size:.75rem}
+    .icon-badge{display:inline-flex;align-items:center;justify-content:center;width:1.5rem;height:1.5rem;border-radius:9999px;border:1px solid rgb(203 213 225);background:white;font-size:.7rem;font-weight:700}
+    .icon-badge.wide{width:2rem;font-size:.68rem}
+    .tag{font-size:.625rem}
     @media (max-width: 640px){
       .hud-wrap{gap:.5rem}
       .hud-time{width:9rem}
@@ -34,8 +36,8 @@
       <div class="flex items-center gap-2 sm:gap-3 min-w-0">
         <span class="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-sky-600 text-white text-xl shrink-0">🌐</span>
         <div class="min-w-0">
-          <h1 class="text-base sm:text-lg font-bold leading-tight truncate">Banderas — Quiz</h1>
-          <div class="text-[11px] text-slate-500 hidden sm:block">Rápido, accesible y offline</div>
+          <h1 class="text-base sm:text-lg font-bold leading-tight truncate">Diversión con el mundo</h1>
+          <div class="text-[11px] text-slate-500 hidden sm:block">Diversión con el mundo</div>
         </div>
       </div>
       <div class="flex items-center gap-1 sm:gap-2">
@@ -101,12 +103,24 @@
 
             <h2 class="text-lg sm:text-xl font-bold mt-5 sm:mt-6 mb-2">2) Tema</h2>
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3">
-              <button type="button" class="theme-btn rounded-xl border p-3 sm:p-4 hover:bg-slate-50 min-h-[var(--tap)]" data-theme="all" aria-label="Todo el mundo">🌐 Mundo</button>
-              <button type="button" class="theme-btn rounded-xl border p-3 sm:p-4 hover:bg-slate-50 min-h-[var(--tap)]" data-theme="Europe" aria-label="Europa">🇪🇺 Europa</button>
-              <button type="button" class="theme-btn rounded-xl border p-3 sm:p-4 hover:bg-slate-50 min-h-[var(--tap)]" data-theme="Africa" aria-label="África">🇿🇦 África</button>
-              <button type="button" class="theme-btn rounded-xl border p-3 sm:p-4 hover:bg-slate-50 min-h-[var(--tap)]" data-theme="Asia" aria-label="Asia">🇯🇵 Asia</button>
-              <button type="button" class="theme-btn rounded-xl border p-3 sm:p-4 hover:bg-slate-50 min-h-[var(--tap)]" data-theme="Americas" aria-label="América">🇺🇸 América</button>
-              <button type="button" class="theme-btn rounded-xl border p-3 sm:p-4 hover:bg-slate-50 min-h-[var(--tap)]" data-theme="Oceania" aria-label="Oceanía">🇦🇺 Oceanía</button>
+              <button type="button" class="theme-btn rounded-xl border p-3 sm:p-4 hover:bg-slate-50 min-h-[var(--tap)] flex items-center gap-2" data-theme="all" aria-label="Mundo">
+                <span class="icon-badge">M</span><span>Mundo</span>
+              </button>
+              <button type="button" class="theme-btn rounded-xl border p-3 sm:p-4 hover:bg-slate-50 min-h-[var(--tap)] flex items-center gap-2" data-theme="Europe" aria-label="Europa">
+                <span class="icon-badge wide">EU</span><span>Europa</span>
+              </button>
+              <button type="button" class="theme-btn rounded-xl border p-3 sm:p-4 hover:bg-slate-50 min-h-[var(--tap)] flex items-center gap-2" data-theme="Asia" aria-label="Asia">
+                <span class="icon-badge wide">AS</span><span>Asia</span>
+              </button>
+              <button type="button" class="theme-btn rounded-xl border p-3 sm:p-4 hover:bg-slate-50 min-h-[var(--tap)] flex items-center gap-2" data-theme="Americas" aria-label="América">
+                <span class="icon-badge wide">AM</span><span>América</span>
+              </button>
+              <button type="button" class="theme-btn rounded-xl border p-3 sm:p-4 hover:bg-slate-50 min-h-[var(--tap)] flex items-center gap-2" data-theme="Oceania" aria-label="Oceanía">
+                <span class="icon-badge wide">OC</span><span>Oceanía</span>
+              </button>
+              <button type="button" class="theme-btn rounded-xl border p-3 sm:p-4 hover:bg-slate-50 min-h-[var(--tap)] flex items-center gap-2" data-theme="Africa" aria-label="África">
+                <span class="icon-badge wide">AF</span><span>África</span>
+              </button>
             </div>
 
             <h2 class="text-lg sm:text-xl font-bold mt-5 sm:mt-6 mb-2">3) Dificultad</h2>
@@ -231,11 +245,11 @@
                 <ul class="list-disc pl-5 space-y-1 text-slate-700 text-sm">
                   <li>Responde con botones o con las teclas <span class="kbd">1</span> a <span class="kbd">4</span>. <span class="kbd">P</span> pausa.</li>
                   <li>En <strong>Estudio</strong> no hay tiempo; si fallas, esa pregunta vuelve más tarde.</li>
-                  <li>Logros: rachas, tiempos y hitos se guardan localmente.</li>
+                  <li>Logros y álbum se guardan localmente.</li>
                 </ul>
               </div>
               <div class="bg-slate-50 p-4 flex justify-end gap-2">
-                <button id="closeHelp" type="button" class="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-semibold">Siguiente ➜</button>
+                <button id="closeHelp" type="button" class="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-semibold">OK</button>
               </div>
             </div>
           </dialog>
@@ -296,7 +310,6 @@
                   <h3 class="text-xl font-bold">🎯 Reto del día</h3>
                   <button id="closeDaily" type="button" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200">Cerrar</button>
                 </div>
-                <p class="text-sm text-slate-600 mt-1"><strong>¿Serás capaz de superar el reto de hoy?</strong></p>
                 <div id="dailyQuestion" class="mt-4"></div>
                 <div id="dailyPrize" class="hidden mt-6 text-center">
                   <div class="text-[56px] leading-none" id="dailyEmoji">⭐</div>
@@ -306,13 +319,19 @@
             </div>
           </dialog>
 
-          <!-- NUEVO: Álbum -->
+          <!-- Álbum -->
           <dialog id="albumModal" class="rounded-2xl p-0 w-[min(96vw,62rem)] shadow backdrop:bg-black/40">
             <div class="bg-white rounded-2xl overflow-hidden">
               <div class="p-5 sm:p-6">
                 <div class="flex items-center justify-between gap-3">
                   <h3 class="text-xl font-bold">📔 Álbum de países aprendidos</h3>
                   <button id="closeAlbum" type="button" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200">Cerrar</button>
+                </div>
+
+                <!-- NUEVO: Progresión por región -->
+                <div class="mt-4 rounded-2xl border bg-slate-50/50 p-3 sm:p-4">
+                  <h4 class="font-semibold text-slate-700 mb-2">Progreso por región</h4>
+                  <div id="albumProgress" class="grid sm:grid-cols-2 gap-3"></div>
                 </div>
 
                 <div class="mt-4 grid sm:grid-cols-3 gap-3">
@@ -332,7 +351,7 @@
                 <div id="albumGrid" class="mt-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3"></div>
 
                 <div id="albumEmpty" class="mt-4 p-4 rounded-xl border bg-slate-50 text-sm text-slate-600 hidden">
-                  Aún no has desbloqueado ningún país. ¡Empieza una partida y cada acierto se añadirá automáticamente!
+                  Aún no has desbloqueado nada. Cada acierto añade bandera o capital según el tipo de pregunta.
                 </div>
               </div>
             </div>
@@ -350,10 +369,9 @@
     Optimizado para móvil, tablet y escritorio. Añádelo a pantalla de inicio cuando lo subas a Internet.
   </footer>
 
-  <!-- Fullscreen / Install / PWA SW (injected) -->
+  <!-- Fullscreen / Manifest -->
   <script>
-    // Fullscreen
-    (function(){
+    (function(){ // Fullscreen
       const fs = document.documentElement;
       const btnFs = document.getElementById('btnFullscreen');
       if (btnFs) btnFs.addEventListener('click', async () => {
@@ -361,12 +379,11 @@
       });
     })();
 
-    // Manifest on the fly
-    (function(){
+    (function(){ // Manifest on the fly
       const manifest = {
-        name: "Banderas — Quiz",
-        short_name: "Banderas",
-        description: "Quiz de banderas/capitales con modos temáticos, estudio, rachas y offline.",
+        name: "Diversión con el mundo",
+        short_name: "Mundo",
+        description: "Diversión con el mundo",
         start_url: "./index.html",
         scope: "./",
         display: "standalone",
